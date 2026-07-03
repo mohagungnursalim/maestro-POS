@@ -37,7 +37,9 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-sm font-medium text-gray-700">Tanggal:</label>
-                            <input type="date" wire:model.live="currentDate" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5 shadow-sm">
+                            <input type="date" wire:model.live="currentDate"
+                                max="{{ date('Y-m-d') }}"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5 shadow-sm">
                         </div>
                     </div>
 

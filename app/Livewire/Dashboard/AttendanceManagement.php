@@ -101,6 +101,12 @@ class AttendanceManagement extends Component
 
     public function saveAttendances()
     {
+        // Guard: tidak boleh absen untuk tanggal yang akan datang
+        if ($this->currentDate > date('Y-m-d')) {
+            $this->dispatch('savedSuccess', message: 'Tidak dapat menyimpan absensi untuk tanggal yang akan datang!');
+            return;
+        }
+
         $branchId = session('active_branch_id');
 
         foreach ($this->attendances as $employee_id => $status) {
