@@ -184,7 +184,7 @@ class AttendanceManagement extends Component
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
             ->get()
-            ->keyBy('date');
+            ->keyBy(fn($a) => \Carbon\Carbon::parse($a->date)->format('Y-m-d'));
 
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
         $this->daysInMonth = [];

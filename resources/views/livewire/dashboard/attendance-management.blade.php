@@ -86,7 +86,7 @@
 
                     <div class="flex justify-center">
                         <button wire:click="saveAttendances" wire:loading.attr="disabled"
-                            class="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 font-medium rounded-lg text-sm px-8 py-3 text-center transition-all shadow-lg shadow-purple-200">
+                            class="text-white bg-purple-500 hover:bg-purple-600 focus:ring-4 focus:outline-none focus:ring-purple-200 font-medium rounded-lg text-sm px-8 py-3 text-center transition-all shadow-lg shadow-purple-200">
                             <span wire:loading.remove wire:target="saveAttendances">Simpan Absensi</span>
                             <span wire:loading wire:target="saveAttendances">Menyimpan...</span>
                         </button>
@@ -157,7 +157,7 @@
                                         Rp {{ number_format($data['total_salary'], 0, ',', '.') }}
                                     </td>
                                     <td class="px-6 py-4 text-center border-l border-gray-50">
-                                        <button wire:click="viewDetails({{ $data['employee']->id }})" class="text-white bg-gradient-to-br from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-purple-200 transition-all flex items-center justify-center gap-1.5 mx-auto focus:ring-4 focus:ring-purple-100">
+                                        <button wire:click="viewDetails({{ $data['employee']->id }})" class="text-white bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-purple-200 transition-all flex items-center justify-center gap-1.5 mx-auto focus:ring-4 focus:ring-purple-100">
                                             <i class="bi bi-calendar-range"></i> Detail
                                         </button>
                                     </td>
@@ -232,9 +232,10 @@
             
             <div class="p-6 overflow-y-auto max-h-[70vh] bg-gray-50/50">
                 <div class="mb-5 flex flex-wrap gap-2 sm:gap-3 justify-center text-[10px] sm:text-xs font-semibold text-gray-600">
-                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-100 shadow-sm"><div class="w-3 h-3 rounded-full bg-green-500"></div> Hadir</div>
-                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-100 shadow-sm"><div class="w-3 h-3 rounded-full bg-blue-500"></div> Libur/Izin</div>
-                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-100 shadow-sm"><div class="w-3 h-3 rounded-full bg-red-500"></div> Alpha</div>
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-100 shadow-sm"><div class="w-3 h-3 rounded-full" style="background:#22c55e"></div> Hadir</div>
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-100 shadow-sm"><div class="w-3 h-3 rounded-full" style="background:#ef4444"></div> Alpha</div>
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-100 shadow-sm"><div class="w-3 h-3 rounded-full" style="background:#3b82f6"></div> Hari Libur</div>
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-100 shadow-sm"><div class="w-3 h-3 rounded-full" style="background:#8b5cf6"></div> Izin/Sakit</div>
                     <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-100 shadow-sm"><div class="w-3 h-3 rounded-full bg-gray-200"></div> Belum Input/Akan Datang</div>
                 </div>
 
@@ -251,32 +252,48 @@
                     @endfor
 
                     @foreach($daysInMonth as $dm)
-                        @php
-                            $status = $detailAttendances[$dm['date']] ?? 'unrecorded';
-                            $bgColor = 'bg-white border-gray-200 text-gray-500 shadow-sm';
-                            $icon = '';
-                            if ($status == 'present') {
-                                $bgColor = 'bg-gradient-to-br from-green-400 to-green-500 text-white shadow-md shadow-green-200/50 border-transparent border-0';
-                                $icon = '<i class="bi bi-check-lg opacity-80 text-xs sm:text-sm"></i>';
-                            } elseif ($status == 'absent') {
-                                $bgColor = 'bg-gradient-to-br from-red-400 to-red-500 text-white shadow-md shadow-red-200/50 border-transparent border-0';
-                                $icon = '<i class="bi bi-x-lg opacity-80 text-xs sm:text-sm"></i>';
-                            } elseif ($status == 'leave' || $status == 'holiday') {
-                                $bgColor = 'bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-md shadow-blue-200/50 border-transparent border-0';
-                                $icon = $status == 'holiday' ? '<i class="bi bi-cup-hot opacity-80 text-[10px] sm:text-xs"></i>' : '<i class="bi bi-envelope-paper opacity-80 text-[10px] sm:text-xs"></i>';
-                            } elseif ($status == 'future') {
-                                $bgColor = 'bg-gray-50/50 border-dashed border-gray-200 text-gray-300';
-                            }
-                        @endphp
-                        <div class="aspect-square rounded-[0.8rem] border flex flex-col items-center justify-center {{ $bgColor }} transition-transform hover:-translate-y-0.5 hover:shadow-lg cursor-default relative overflow-hidden group">
-                            <!-- Shine effect -->
-                            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                            
-                            <span class="text-sm sm:text-base font-black z-10">{{ $dm['day'] }}</span>
-                            <div class="mt-0.5 z-10 {!! $icon ? '' : 'hidden' !!}">
-                                {!! $icon !!}
+                        @php $status = $detailAttendances[$dm['date']] ?? 'unrecorded'; @endphp
+                        
+                        @if($status == 'present')
+                            <div class="aspect-square rounded-[0.8rem] border-0 flex flex-col items-center justify-center text-white transition-transform hover:-translate-y-0.5 hover:shadow-lg cursor-default relative overflow-hidden group shadow-md"
+                                style="background: linear-gradient(135deg, #4ade80, #22c55e); box-shadow: 0 4px 12px rgba(34,197,94,0.35);">
+                                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <span class="text-sm sm:text-base font-black z-10">{{ $dm['day'] }}</span>
+                                <i class="bi bi-check-lg text-xs z-10 opacity-90"></i>
                             </div>
-                        </div>
+                        @elseif($status == 'absent')
+                            <div class="aspect-square rounded-[0.8rem] border-0 flex flex-col items-center justify-center text-white transition-transform hover:-translate-y-0.5 hover:shadow-lg cursor-default relative overflow-hidden group shadow-md"
+                                style="background: linear-gradient(135deg, #f87171, #ef4444); box-shadow: 0 4px 12px rgba(239,68,68,0.35);">
+                                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <span class="text-sm sm:text-base font-black z-10">{{ $dm['day'] }}</span>
+                                <i class="bi bi-x-lg text-xs z-10 opacity-90"></i>
+                            </div>
+                        @elseif($status == 'holiday')
+                            <div class="aspect-square rounded-[0.8rem] border-0 flex flex-col items-center justify-center text-white transition-transform hover:-translate-y-0.5 hover:shadow-lg cursor-default relative overflow-hidden group shadow-md"
+                                style="background: linear-gradient(135deg, #60a5fa, #3b82f6); box-shadow: 0 4px 12px rgba(59,130,246,0.35);">
+                                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <span class="text-sm sm:text-base font-black z-10">{{ $dm['day'] }}</span>
+                                <i class="bi bi-cup-hot text-[10px] z-10 opacity-90"></i>
+                            </div>
+                        @elseif($status == 'leave')
+                            <div class="aspect-square rounded-[0.8rem] border-0 flex flex-col items-center justify-center text-white transition-transform hover:-translate-y-0.5 hover:shadow-lg cursor-default relative overflow-hidden group shadow-md"
+                                style="background: linear-gradient(135deg, #a78bfa, #8b5cf6); box-shadow: 0 4px 12px rgba(139,92,246,0.35);">
+                                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                                <span class="text-sm sm:text-base font-black z-10">{{ $dm['day'] }}</span>
+                                <i class="bi bi-envelope-paper text-[10px] z-10 opacity-90"></i>
+                            </div>
+                        @elseif($status == 'future')
+                            <div class="aspect-square rounded-[0.8rem] border border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-300 cursor-default"
+                                style="background: rgba(249,250,251,0.5);">
+                                <span class="text-sm sm:text-base font-black">{{ $dm['day'] }}</span>
+                            </div>
+                        @else
+                            {{-- unrecorded --}}
+                            <div class="aspect-square rounded-[0.8rem] border border-gray-200 flex flex-col items-center justify-center text-gray-400 cursor-default shadow-sm bg-white">
+                                <span class="text-sm sm:text-base font-black">{{ $dm['day'] }}</span>
+                                <i class="bi bi-dash text-xs opacity-50"></i>
+                            </div>
+                        @endif
                     @endforeach
                 </div>
             </div>
