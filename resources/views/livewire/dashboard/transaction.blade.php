@@ -219,13 +219,34 @@
                                 {{-- HEADER ORDER --}}
                                 <tr class="bg-gray-200 font-bold text-gray-800">
                                     <td class="px-4 py-3">
-                                        <div class="flex flex-col gap-1">
+                                        <div class="flex flex-col gap-1 items-start">
                                             <span class="bg-green-600 text-white text-xs px-2 py-1 rounded w-fit">
                                                 {{ $order->order_number }}
                                             </span>
                                             <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded w-fit">
                                                 {{ $order->user_name }}
                                             </span>
+                                            @hasrole('admin|owner')
+                                            <button type="button" @click="
+                                                Swal.fire({
+                                                    title: 'Hapus Transaksi?',
+                                                    text: 'Data transaksi ini akan dihapus permanen!',
+                                                    icon: 'warning',
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: '#d33',
+                                                    cancelButtonColor: '#3085d6',
+                                                    confirmButtonText: 'Ya, Hapus!',
+                                                    cancelButtonText: 'Batal'
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        $wire.deleteTransaction({{ $order->order_id }})
+                                                    }
+                                                })
+                                            " class="mt-1 bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded w-fit flex items-center gap-1 transition-colors">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
+                                                Hapus
+                                            </button>
+                                            @endrole
                                         </div>
                                     </td>
 
@@ -452,6 +473,26 @@
                 setTimeout(() => {
                     window.location.href = "/dashboard/reports";
                 }, 3000); // 3 detik
+            });
+
+            Livewire.on('transaction-deleted', () => {
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Transaksi berhasil dihapus.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
+
+            Livewire.on('transaction-delete-error', () => {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menghapus transaksi.',
+                    icon: 'error',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
             });
 
         });

@@ -375,6 +375,51 @@ class Transaction extends Component
 
         }
 
+        public function deleteTransaction($orderId)
+        {
+            try {
+                DB::beginTransaction();
+
+                $order = \App\Models\Order::find($orderId);
+                if ($order) {
+                    \App\Models\TransactionDetail::where('order_id', $orderId)->delete();
+                    $order->delete();
+                }
+
+                DB::commit();
+
+                // Increment version to revalidate cache
+                if (Cache::has('transaction_cache_version')) {
+                    Cache::increment('transaction_cache_version');
+                } else {
+                    Cache::put('transaction_cache_version', 2);
+                }
+                
+                // Re-calculate totals
+                $version = Cache::get('transaction_cache_version', 1);
+                $activeBranch = \Illuminate\Support\Facades\Session::get('active_branch_id', 'all');
+                $this->totalTransactions = Cache::remember("totalTransactions_paid_br{$activeBranch}_v{$version}", $this->ttl, function () use ($activeBranch) {
+                    return DB::table('transaction_details')
+                        ->join('orders', 'transaction_details.order_id', '=', 'orders.id')
+                        ->where('orders.payment_status', 'PAID')
+                        ->when($activeBranch !== 'all', function ($query) use ($activeBranch) {
+                            $query->where('orders.branch_id', $activeBranch);
+                        })
+                        ->count();
+                });
+                
+                // Load updated transactions list
+                $this->loadInitialTransactions();
+
+                $this->dispatch('transaction-deleted');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Error deleting transaction: ' . $e->getMessage());
+                $this->dispatch('transaction-delete-error');
+            }
+        }
+
         public function render()
         {
             return view('livewire.dashboard.transaction');
